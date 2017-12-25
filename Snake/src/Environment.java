@@ -55,7 +55,7 @@ public class Environment extends GraphicsProgram{
 					directions.remove(0);
 					n--;
 				}
-				pause(100);
+				pause(Math.max(40, 100 / bodies.size()));
 			}
 			finished();
 		}
@@ -221,7 +221,7 @@ public class Environment extends GraphicsProgram{
 		}
 		removeAll();
 		gameOver = false;
-		
+		anchorCreate = false;
 		int n = bodies.size();
 		while(n != 0){
 			bodies.remove(0);
