@@ -101,7 +101,6 @@ public class Environment extends GraphicsProgram{
 	public void createAnchor() {
 		anchors.add(new Anchor(bodies.get(0).getPositionX(), bodies.get(0).getPositionY()));
 		add(anchors.get(anchors.size() - 1));
-		System.out.println("Anchors " + anchors.size());
 		anchors.get(anchors.size() - 1).setDirection(directions.get(0));
 	}
 
