@@ -30,7 +30,6 @@ public class Environment extends GraphicsProgram {
 		setSize(400, 400);
 		GRect background = new GRect(0, 0, getWidth(), getHeight());
 		background.setFilled(true);
-
 		add(background);
 		bodies.add(new Body(31, 31));
 		add(bodies.get(0));
@@ -67,31 +66,50 @@ public class Environment extends GraphicsProgram {
 			pause = !pause;
 		}
 		if (!pause) {
-			int getDirection = bodies.get(0).getDirection();
-			if (e.getKeyCode() == KeyEvent.VK_RIGHT && getDirection != 3 && getDirection != 1) {
-				directions.add(1);
+//			int getDirection = bodies.get(0).getDirection();
+//			if (e.getKeyCode() == KeyEvent.VK_RIGHT && getDirection != 3 && getDirection != 1) {
+//				directions.add(1);
+//				anchorCreate = true;
+//			}
+//			if (e.getKeyCode() == KeyEvent.VK_UP && getDirection != 4 && getDirection != 2) {
+//				directions.add(2);
+//				anchorCreate = true;
+//			}
+//			if (e.getKeyCode() == KeyEvent.VK_LEFT && getDirection != 1 && getDirection != 3) {
+//				directions.add(3);
+//				anchorCreate = true;
+//			}
+//			if (e.getKeyCode() == KeyEvent.VK_DOWN && getDirection != 2 && getDirection != 4) {
+//				directions.add(4);
+//				anchorCreate = true;
+//			}
+			int direction = getDirection(e.getKeyCode(), bodies.get(0).getDirection());
+			if(direction != 0){
+				directions.add(direction);
 				anchorCreate = true;
 			}
-			if (e.getKeyCode() == KeyEvent.VK_UP && getDirection != 4 && getDirection != 2) {
-				directions.add(2);
-				anchorCreate = true;
-			}
-			if (e.getKeyCode() == KeyEvent.VK_LEFT && getDirection != 1 && getDirection != 3) {
-				directions.add(3);
-				anchorCreate = true;
-			}
-			if (e.getKeyCode() == KeyEvent.VK_DOWN && getDirection != 2 && getDirection != 4) {
-				directions.add(4);
-				anchorCreate = true;
-			}
+			
 			if (directions.size() != 0) {
 				bodies.get(0).setDirection(directions.get(0));
 			}
 		}
 	}
-
+	
+	public int getDirection(int keyCode, int getDirection){
+		if (keyCode == KeyEvent.VK_RIGHT && getDirection != 3 && getDirection != 1) {
+			return 1;
+		} else if (keyCode == KeyEvent.VK_UP && getDirection != 4 && getDirection != 2) {
+			return 2;
+		} else if (keyCode == KeyEvent.VK_LEFT && getDirection != 1 && getDirection != 3) {
+			return 3;
+		} else if (keyCode == KeyEvent.VK_DOWN && getDirection != 2 && getDirection != 4) {
+			return 4;
+		}
+		return 0;
+	}
+	
 	public void createAnchor() {
-		if (anchorCreate) {
+		if (anchorCreate && directions.size() != 0) {
 			anchors.add(new Anchor(bodies.get(0).getPositionX(), bodies.get(0).getPositionY()));
 			add(anchors.get(anchors.size() - 1));
 			anchors.get(anchors.size() - 1).setDirection(directions.get(0));
@@ -204,14 +222,26 @@ public class Environment extends GraphicsProgram {
 
 	public void bodyCollisionTest() {
 		for (int i = 1; i < bodies.size(); i++) {
-			if (bodies.get(0).getPositionX() == bodies.get(i).getPositionX()
-					&& bodies.get(0).getPositionY() == bodies.get(i).getPositionY()) {
+			if (bodies.get(0).getPositionX() == bodies.get(i).getPositionX() && bodies.get(0).getPositionY() == bodies.get(i).getPositionY()) {
 				gameOver = true;
 			}
 		}
 	}
 
 	public void finished() {
+		gameOverLabels();
+		pause = true;
+		pause(1);
+		removeAll();
+		gameOver = false;
+		anchorCreate = false;
+		bodies.clear();
+		directions.clear();
+		snakeCounter = 0;
+		init();
+	}
+	
+	public void gameOverLabels(){
 		GLabel gameDone = new GLabel("Game Over! Press Space to play again", 5, 30);
 		GLabel score = new GLabel("Score: " + snakeCounter, 5, 60);
 		gameDone.setColor(Color.WHITE);
@@ -220,23 +250,5 @@ public class Environment extends GraphicsProgram {
 		score.setFont(new Font("Ariel", Font.BOLD, 20));
 		add(gameDone);
 		add(score);
-
-		pause = true;
-		pause(1);
-		removeAll();
-		gameOver = false;
-		anchorCreate = false;
-		int n = bodies.size();
-		while (n != 0) {
-			bodies.remove(0);
-			n--;
-		}
-		int x = directions.size();
-		while (x != 0) {
-			directions.remove(0);
-			x--;
-		}
-		snakeCounter = 0;
-		init();
 	}
 }
