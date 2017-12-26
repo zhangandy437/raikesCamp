@@ -10,7 +10,7 @@ import acm.graphics.GObject;
 import acm.graphics.GRect;
 import acm.program.GraphicsProgram;
 
-public class Environment extends GraphicsProgram{
+public class Environment extends GraphicsProgram {
 
 	private static final double MOVE = 10;
 
@@ -39,69 +39,64 @@ public class Environment extends GraphicsProgram{
 
 	public void run() {
 		addKeyListeners();
-		while(true) {
-			while(!gameOver) {
-				while(pause){
-					pause(1);
-				}
-				if(anchorCreate) {
-					createAnchor();
-					anchorCreate = false;
-				}
+		while (true) {
+			while (!gameOver) {
+				pause(Math.max(40, 100 / bodies.size()));
+				createAnchor();
 				foodCollideTest();
 				snakeMove();
-				int n = directions.size();
-				while(n != 0){
-					directions.remove(0);
-					n--;
-				}
-				pause(Math.max(40, 100 / bodies.size()));
+				directions.clear();
 			}
 			finished();
 		}
 	}
-	
-	private void snakeMove(){
-				for(int i = 0; i < bodies.size(); i++){
-					collisionTest(bodies.get(i), i);
-					moveSnake(bodies.get(i));
-					bodyCollisionTest();
-					testOutOfBounds();
-				}
+
+	private void snakeMove() {
+
+		for (int i = 0; i < bodies.size(); i++) {
+			collisionTest(bodies.get(i), i);
+			moveSnake(bodies.get(i));
+			bodyCollisionTest();
+			testOutOfBounds();
+		}
 	}
 
-	@Override public void keyPressed(KeyEvent e){
-		if(e.getKeyChar() == KeyEvent.VK_SPACE){
+	@Override
+	public void keyPressed(KeyEvent e) {
+		if (e.getKeyChar() == KeyEvent.VK_SPACE) {
 			pause = !pause;
 		}
-		if(!pause){
+		if (!pause) {
 			int getDirection = bodies.get(0).getDirection();
-			if(e.getKeyCode() == KeyEvent.VK_RIGHT && getDirection != 3 && getDirection != 1){
+			if (e.getKeyCode() == KeyEvent.VK_RIGHT && getDirection != 3 && getDirection != 1) {
 				directions.add(1);
 				anchorCreate = true;
 			}
-			if(e.getKeyCode() == KeyEvent.VK_UP && getDirection != 4 && getDirection != 2){
+			if (e.getKeyCode() == KeyEvent.VK_UP && getDirection != 4 && getDirection != 2) {
 				directions.add(2);
 				anchorCreate = true;
 			}
-			if(e.getKeyCode() == KeyEvent.VK_LEFT && getDirection != 1 && getDirection != 3){
+			if (e.getKeyCode() == KeyEvent.VK_LEFT && getDirection != 1 && getDirection != 3) {
 				directions.add(3);
 				anchorCreate = true;
 			}
-			if(e.getKeyCode() == KeyEvent.VK_DOWN && getDirection != 2 && getDirection != 4){
+			if (e.getKeyCode() == KeyEvent.VK_DOWN && getDirection != 2 && getDirection != 4) {
 				directions.add(4);
 				anchorCreate = true;
 			}
-			if(directions.size() != 0){
-			bodies.get(0).setDirection(directions.get(0));
+			if (directions.size() != 0) {
+				bodies.get(0).setDirection(directions.get(0));
 			}
 		}
 	}
 
 	public void createAnchor() {
-		anchors.add(new Anchor(bodies.get(0).getPositionX(), bodies.get(0).getPositionY()));
-		add(anchors.get(anchors.size() - 1));
-		anchors.get(anchors.size() - 1).setDirection(directions.get(0));
+		if (anchorCreate) {
+			anchors.add(new Anchor(bodies.get(0).getPositionX(), bodies.get(0).getPositionY()));
+			add(anchors.get(anchors.size() - 1));
+			anchors.get(anchors.size() - 1).setDirection(directions.get(0));
+			anchorCreate = false;
+		}
 	}
 
 	public void pause(int milli) {
@@ -109,15 +104,18 @@ public class Environment extends GraphicsProgram{
 			Thread.sleep(milli);
 		} catch (InterruptedException e) {
 			e.printStackTrace();
-		}		
+		}
+		if(pause){
+			pause(milli);
+		}
 	}
 
 	public void collisionTest(Body body, int place) {
 		GObject collider = getElementAt(body.getPositionX() - 1, body.getPositionY() - 1);
-		for(int i = 0; i < anchors.size(); i++){
-			if(collider == anchors.get(i)){
+		for (int i = 0; i < anchors.size(); i++) {
+			if (collider == anchors.get(i)) {
 				body.setDirection(anchors.get(i).getDirection());
-				if(place == bodies.size() - 1){
+				if (place == bodies.size() - 1) {
 					remove(collider);
 					anchors.remove(i);
 				}
@@ -126,29 +124,37 @@ public class Environment extends GraphicsProgram{
 	}
 
 	public void moveSnake(Body body) {
-		switch(body.getDirection()) {
-		case 1: body.move(MOVE, 0);
-		break;
-		case 2: body.move(0, -MOVE);
-		break;
-		case 3: body.move(-MOVE, 0);
-		break;
-		case 4: body.move(0, MOVE);
-		break;
+		switch (body.getDirection()) {
+		case 1:
+			body.move(MOVE, 0);
+			break;
+		case 2:
+			body.move(0, -MOVE);
+			break;
+		case 3:
+			body.move(-MOVE, 0);
+			break;
+		case 4:
+			body.move(0, MOVE);
+			break;
 		}
 	}
 
 	public void createBody() {
 		int end = bodies.size() - 1;
-		switch(bodies.get(end).getDirection()){
-		case 1: bodies.add(new Body(bodies.get(end).getX() - 10, bodies.get(end).getY()));
-		break;
-		case 2: bodies.add(new Body(bodies.get(end).getX(), bodies.get(end).getY() + 10));
-		break;
-		case 3: bodies.add(new Body(bodies.get(end).getX() + 10, bodies.get(end).getY()));
-		break;
-		case 4: bodies.add(new Body(bodies.get(end).getX(), bodies.get(end).getY() - 10));
-		break;
+		switch (bodies.get(end).getDirection()) {
+		case 1:
+			bodies.add(new Body(bodies.get(end).getX() - 10, bodies.get(end).getY()));
+			break;
+		case 2:
+			bodies.add(new Body(bodies.get(end).getX(), bodies.get(end).getY() + 10));
+			break;
+		case 3:
+			bodies.add(new Body(bodies.get(end).getX() + 10, bodies.get(end).getY()));
+			break;
+		case 4:
+			bodies.add(new Body(bodies.get(end).getX(), bodies.get(end).getY() - 10));
+			break;
 		}
 		bodies.get(bodies.size() - 1).setDirection(bodies.get(end).getDirection());
 		add(bodies.get(bodies.size() - 1));
@@ -157,7 +163,7 @@ public class Environment extends GraphicsProgram{
 	public void testOutOfBounds() {
 		int headX = bodies.get(0).getPositionX();
 		int headY = bodies.get(0).getPositionY();
-		if(headX < 0 || headX > 400 || headY < 0 || headY > 400){
+		if (headX < 0 || headX > 400 || headY < 0 || headY > 400) {
 			gameOver = true;
 		}
 	}
@@ -174,24 +180,22 @@ public class Environment extends GraphicsProgram{
 		Random rand = new Random();
 		int x = rand.nextInt(39) * 10 + 1;
 		int y = rand.nextInt(39) * 10 + 1;
-		boolean free = true;
 		GObject tester = getElementAt(x, y);
 
-		for(int i = 0; i < bodies.size(); i++){
-			if(tester == bodies.get(i)){
-				free = false;
-			}
-		}
-		if(free){
-			food.setLocation(x, y);
-		}
-		if(!free){
+		// bodies.stream().filter(body->body==tester).s
+		/*
+		 * for(int i = 0; i < bodies.size(); i++){ if(tester == bodies.get(i)){
+		 * free = false; } }
+		 */
+		if (bodies.contains(tester)) {
 			teleportFood();
+		} else {
+			food.setLocation(x, y);
 		}
 	}
 
 	public void foodCollideTest() {
-		if(bodies.get(0).getPositionX() == food.getX() && bodies.get(0).getPositionY() == food.getY()){
+		if (bodies.get(0).getPositionX() == food.getX() && bodies.get(0).getPositionY() == food.getY()) {
 			createBody();
 			teleportFood();
 			snakeCounter++;
@@ -199,15 +203,16 @@ public class Environment extends GraphicsProgram{
 	}
 
 	public void bodyCollisionTest() {
-		for(int i = 1; i < bodies.size(); i++){
-			if(bodies.get(0).getPositionX() == bodies.get(i).getPositionX() && bodies.get(0).getPositionY() == bodies.get(i).getPositionY()){
+		for (int i = 1; i < bodies.size(); i++) {
+			if (bodies.get(0).getPositionX() == bodies.get(i).getPositionX()
+					&& bodies.get(0).getPositionY() == bodies.get(i).getPositionY()) {
 				gameOver = true;
 			}
 		}
 	}
 
 	public void finished() {
-		GLabel gameDone  = new GLabel("Game Over! Press Space to play again", 5, 30);
+		GLabel gameDone = new GLabel("Game Over! Press Space to play again", 5, 30);
 		GLabel score = new GLabel("Score: " + snakeCounter, 5, 60);
 		gameDone.setColor(Color.WHITE);
 		gameDone.setFont(new Font("Ariel", Font.BOLD, 20));
@@ -215,21 +220,19 @@ public class Environment extends GraphicsProgram{
 		score.setFont(new Font("Ariel", Font.BOLD, 20));
 		add(gameDone);
 		add(score);
-		
+
 		pause = true;
-		while(pause){
-			pause(1);
-		}
+		pause(1);
 		removeAll();
 		gameOver = false;
 		anchorCreate = false;
 		int n = bodies.size();
-		while(n != 0){
+		while (n != 0) {
 			bodies.remove(0);
 			n--;
 		}
 		int x = directions.size();
-		while(x != 0){
+		while (x != 0) {
 			directions.remove(0);
 			x--;
 		}
