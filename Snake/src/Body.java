@@ -2,7 +2,7 @@ import java.awt.Color;
 
 import acm.graphics.GRect;
 
-public class Body extends GRect{
+public class Body extends GRect implements Runnable{
 	
 	private int direction;
 
@@ -15,6 +15,10 @@ public class Body extends GRect{
 		this.setFilled(true);
 	}
 	
+	@Override
+	public void run() {
+		this.moveSnake();
+	}
 
 	public void moveSnake() {
 		switch(direction) {
@@ -44,4 +48,12 @@ public class Body extends GRect{
 	public int getPositionY() {
 		return (int) this.getY();
 	}
+	
+	public boolean isCollidedWith(Body body){
+		if(this != body && this.getPositionX() == body.getPositionX() && this.getPositionY() == body.getPositionY()){
+			return true;
+		}
+		return false;
+	}
+
 }

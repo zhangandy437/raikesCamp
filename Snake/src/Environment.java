@@ -52,12 +52,12 @@ public class Environment extends GraphicsProgram {
 
 	private void snakeMove() {
 
-		for (int i = 0; i < bodies.size(); i++) {
-			collisionTest(bodies.get(i), i);
-			moveSnake(bodies.get(i));
-			bodyCollisionTest();
-			testOutOfBounds();
-		}
+		this.bodies.stream().forEach(body -> {
+			collisionTest(body);
+			moveSnake(body);
+		});
+		bodyCollisionTest();
+		testOutOfBounds();
 	}
 
 	@Override
@@ -66,36 +66,19 @@ public class Environment extends GraphicsProgram {
 			pause = !pause;
 		}
 		if (!pause) {
-//			int getDirection = bodies.get(0).getDirection();
-//			if (e.getKeyCode() == KeyEvent.VK_RIGHT && getDirection != 3 && getDirection != 1) {
-//				directions.add(1);
-//				anchorCreate = true;
-//			}
-//			if (e.getKeyCode() == KeyEvent.VK_UP && getDirection != 4 && getDirection != 2) {
-//				directions.add(2);
-//				anchorCreate = true;
-//			}
-//			if (e.getKeyCode() == KeyEvent.VK_LEFT && getDirection != 1 && getDirection != 3) {
-//				directions.add(3);
-//				anchorCreate = true;
-//			}
-//			if (e.getKeyCode() == KeyEvent.VK_DOWN && getDirection != 2 && getDirection != 4) {
-//				directions.add(4);
-//				anchorCreate = true;
-//			}
 			int direction = getDirection(e.getKeyCode(), bodies.get(0).getDirection());
-			if(direction != 0){
+			if (direction != 0) {
 				directions.add(direction);
 				anchorCreate = true;
 			}
-			
+
 			if (directions.size() != 0) {
 				bodies.get(0).setDirection(directions.get(0));
 			}
 		}
 	}
-	
-	public int getDirection(int keyCode, int getDirection){
+
+	public int getDirection(int keyCode, int getDirection) {
 		if (keyCode == KeyEvent.VK_RIGHT && getDirection != 3 && getDirection != 1) {
 			return 1;
 		} else if (keyCode == KeyEvent.VK_UP && getDirection != 4 && getDirection != 2) {
@@ -107,7 +90,7 @@ public class Environment extends GraphicsProgram {
 		}
 		return 0;
 	}
-	
+
 	public void createAnchor() {
 		if (anchorCreate && directions.size() != 0) {
 			anchors.add(new Anchor(bodies.get(0).getPositionX(), bodies.get(0).getPositionY()));
@@ -123,13 +106,16 @@ public class Environment extends GraphicsProgram {
 		} catch (InterruptedException e) {
 			e.printStackTrace();
 		}
-		if(pause){
+		if (pause) {
 			pause(milli);
 		}
 	}
 
-	public void collisionTest(Body body, int place) {
+	public void collisionTest(Body body) {
 		GObject collider = getElementAt(body.getPositionX() - 1, body.getPositionY() - 1);
+
+		int place = this.bodies.indexOf(body);
+
 		for (int i = 0; i < anchors.size(); i++) {
 			if (collider == anchors.get(i)) {
 				body.setDirection(anchors.get(i).getDirection());
@@ -138,8 +124,9 @@ public class Environment extends GraphicsProgram {
 					anchors.remove(i);
 				}
 			}
-		}
+		}              
 	}
+	
 
 	public void moveSnake(Body body) {
 		switch (body.getDirection()) {
@@ -199,12 +186,6 @@ public class Environment extends GraphicsProgram {
 		int x = rand.nextInt(39) * 10 + 1;
 		int y = rand.nextInt(39) * 10 + 1;
 		GObject tester = getElementAt(x, y);
-
-		// bodies.stream().filter(body->body==tester).s
-		/*
-		 * for(int i = 0; i < bodies.size(); i++){ if(tester == bodies.get(i)){
-		 * free = false; } }
-		 */
 		if (bodies.contains(tester)) {
 			teleportFood();
 		} else {
@@ -221,10 +202,9 @@ public class Environment extends GraphicsProgram {
 	}
 
 	public void bodyCollisionTest() {
-		for (int i = 1; i < bodies.size(); i++) {
-			if (bodies.get(0).getPositionX() == bodies.get(i).getPositionX() && bodies.get(0).getPositionY() == bodies.get(i).getPositionY()) {
-				gameOver = true;
-			}
+		Body head = bodies.get(0);
+		if(bodies.stream().anyMatch(body -> head.isCollidedWith(body))){
+			gameOver = true;
 		}
 	}
 
@@ -240,8 +220,8 @@ public class Environment extends GraphicsProgram {
 		snakeCounter = 0;
 		init();
 	}
-	
-	public void gameOverLabels(){
+
+	public void gameOverLabels() {
 		GLabel gameDone = new GLabel("Game Over! Press Space to play again", 5, 30);
 		GLabel score = new GLabel("Score: " + snakeCounter, 5, 60);
 		gameDone.setColor(Color.WHITE);

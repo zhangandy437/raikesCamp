@@ -12,7 +12,8 @@ public class Anchor extends GRect{
 	}
 	public Anchor(double x, double y){
 		super(x - 2, y - 2, 10, 10);
-		this.setVisible(false);
+		this.setVisible(true);
+		this.setColor(Color.ORANGE);
 		
 	}
 }
